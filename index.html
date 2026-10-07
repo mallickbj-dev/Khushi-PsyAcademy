@@ -3,10 +3,164 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="refresh" content="0; url=khushi-psyacademy.html">
-  <title>Redirecting to Khushi PsyAcademy</title>
+  <meta name="theme-color" content="#281B49">
+  <title>Khushi PsyAcademy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --purple: #281B49;
+      --lavender: #D9D0FA;
+      --gold: #F2B33D;
+      --muted: #C0B8D5;
+      --load-duration: 2600ms;
+      font-family: 'Figtree', 'Trebuchet MS', sans-serif;
+      background: var(--purple);
+      color: #FFFDF8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      min-height: 100svh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background-color: var(--purple);
+      background-image: linear-gradient(135deg, rgb(255 255 255 / 3%) 25%, transparent 25%, transparent 50%, rgb(255 255 255 / 3%) 50%, rgb(255 255 255 / 3%) 75%, transparent 75%);
+      background-size: 28px 28px;
+    }
+    .screen {
+      width: min(100% - 40px, 540px);
+      padding: 36px 12px;
+      text-align: center;
+      animation: arrive 700ms cubic-bezier(.2,.75,.25,1) both;
+      transition: opacity 380ms ease, transform 380ms ease;
+    }
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 88px;
+      aspect-ratio: 1;
+      margin: 0 auto 28px;
+      border-radius: 26px;
+      background: var(--gold);
+      box-shadow: 0 14px 38px rgb(9 5 22 / 22%);
+      animation: mark-in 800ms 120ms cubic-bezier(.2,.8,.2,1) both;
+    }
+    .brand-mark svg { width: 68px; height: 68px; }
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--lavender);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .12em;
+    }
+    h1 {
+      margin: 0;
+      font-family: 'Bricolage Grotesque', 'Trebuchet MS', sans-serif;
+      font-size: clamp(32px, 8vw, 48px);
+      font-weight: 800;
+      line-height: 1.08;
+    }
+    .welcome {
+      margin: 15px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+    .loading {
+      width: min(100%, 250px);
+      margin: 38px auto 0;
+      color: var(--lavender);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .track {
+      height: 4px;
+      margin-top: 12px;
+      overflow: hidden;
+      border-radius: 99px;
+      background: rgb(255 255 255 / 16%);
+    }
+    .track::after {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--gold);
+      content: '';
+      transform: scaleX(0);
+      transform-origin: left;
+      animation: load var(--load-duration) cubic-bezier(.2,.65,.3,1) forwards;
+    }
+    .enter-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 27px;
+      padding: 9px 2px;
+      color: #FFFDF8;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration-color: var(--gold);
+      text-underline-offset: 5px;
+    }
+    .enter-link svg { width: 17px; height: 17px; }
+    .enter-link:focus-visible { outline: 2px solid var(--gold); outline-offset: 5px; }
+    body.leaving .screen { opacity: 0; transform: translateY(-8px); }
+    @keyframes arrive {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes mark-in {
+      from { opacity: 0; transform: scale(.82) rotate(-7deg); }
+      to { opacity: 1; transform: scale(1) rotate(0); }
+    }
+    @keyframes load { to { transform: scaleX(1); } }
+    @media (max-width: 380px) {
+      .brand-mark { width: 76px; border-radius: 22px; margin-bottom: 24px; }
+      .brand-mark svg { width: 60px; height: 60px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+      .screen { transition-duration: 0ms; }
+    }
+  </style>
 </head>
 <body>
-  <p>Redirecting to <a href="khushi-psyacademy.html">Khushi PsyAcademy</a>...</p>
+  <main class="screen">
+    <div class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 80 80" fill="none">
+        <path d="M40 27 62 17l-22-9-22 9 22 10Z" fill="#4B3BA8"/>
+        <path d="M58 19v11" stroke="#4B3BA8" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="58" cy="33" r="2.5" fill="#4B3BA8"/>
+        <path d="M15 39c9-3 17-1.5 25 4v24c-8-5.5-16-7-25-4V39Z" fill="#FFFDF8" stroke="#4B3BA8" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M65 39c-9-3-17-1.5-25 4v24c8-5.5 16-7 25-4V39Z" fill="#FFFDF8" stroke="#4B3BA8" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M21 48c5-1 9-.3 13 1.5M21 55c5-1 9-.3 13 1.5M59 48c-5-1-9-.3-13 1.5M59 55c-5-1-9-.3-13 1.5" stroke="#B8A9E8" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <p class="eyebrow">WELCOME TO</p>
+    <h1>Khushi PsyAcademy</h1>
+    <p class="welcome">Your learning space is opening.</p>
+    <div class="loading" role="status" aria-live="polite">
+      <span>Preparing your classroom</span>
+      <div class="track" aria-hidden="true"></div>
+    </div>
+    <a class="enter-link" href="khushi-psyacademy.html">
+      Enter the academy
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+  </main>
+  <script>
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const redirectDelay = reducedMotion ? 800 : 2600;
+    document.documentElement.style.setProperty('--load-duration', `${redirectDelay}ms`);
+    window.setTimeout(() => {
+      document.body.classList.add('leaving');
+      window.setTimeout(() => window.location.replace('khushi-psyacademy.html'), reducedMotion ? 0 : 380);
+    }, redirectDelay);
+  </script>
 </body>
 </html>

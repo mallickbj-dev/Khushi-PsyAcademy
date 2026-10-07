@@ -158,7 +158,17 @@ const monthKey = d => d.getFullYear()+'-'+pad(d.getMonth()+1);
 const monthLabel = mk => parseYmd(mk+'-01').toLocaleString('en-IN',{month:'long',year:'numeric'});
 const shortDate = s => parseYmd(s).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
 
-const DEFAULT_TEMPLATE = "Hello, this is a gentle reminder from Khushi PsyAcademy that {student}'s tuition fee of {amount} for {month} is pending. Kindly pay at your earliest convenience. Thank you!";
+const LEGACY_DEFAULT_TEMPLATE = "Hello, this is a gentle reminder from Khushi PsyAcademy that {student}'s tuition fee of {amount} for {month} is pending. Kindly pay at your earliest convenience. Thank you!";
+const DEFAULT_TEMPLATE = `Hello {student} 👋
+
+This is a gentle reminder from *Khushi PsyAcademy* that the tuition fee for *{month}* is pending.
+
+💰 *Amount:* {amount}
+📚 *Batch:* {batch}
+
+Please make the payment at your convenience. If you have already paid, please disregard this message.
+
+Thank you! 💜`;
 
 /* ---------- state ---------- */
 function seed(){
@@ -183,6 +193,7 @@ function seed(){
 }
 let S;
 try { const r = localStorage.getItem(KEY); S = r ? JSON.parse(r) : seed(); } catch(e){ S = seed(); }
+if(S.settings && S.settings.template === LEGACY_DEFAULT_TEMPLATE) S.settings.template = DEFAULT_TEMPLATE;
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
 save();
 
