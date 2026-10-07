@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Khushi PsyAcademy</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#4B3BA8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  --bg:#F4F1FB; --surface:#FFFFFF; --ink:#261F4D; --muted:#6B6590; --line:#E3DDF3;
+  --brand:#4B3BA8; --brand-ink:#FFFFFF; --gold:#F2B33D;
+  --ok:#1C8F7A; --okbg:#DDF3EE; --warn:#C8451F; --warnbg:#FCE4DC; --pend:#8A5A00; --pendbg:#FFF0CC;
+  --hero-sub:#D9D2FF;
+  --display:'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif;
+  --body:'Figtree',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#17132E; --surface:#221C44; --ink:#EFEBFF; --muted:#A59FC9; --line:#352E5F;
+    --brand:#A99BFF; --brand-ink:#17132E;
+    --ok:#5ED3BC; --okbg:#14352F; --warn:#FF8F6B; --warnbg:#43211A; --pend:#F2C660; --pendbg:#3E3014;
+    --hero-sub:#4A3F8F;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#17132E; --surface:#221C44; --ink:#EFEBFF; --muted:#A59FC9; --line:#352E5F;
+  --brand:#A99BFF; --brand-ink:#17132E;
+  --ok:#5ED3BC; --okbg:#14352F; --warn:#FF8F6B; --warnbg:#43211A; --pend:#F2C660; --pendbg:#3E3014;
+  --hero-sub:#4A3F8F;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+#app{max-width:560px;margin:0 auto;min-height:100%;padding:0 16px calc(96px + env(safe-area-inset-bottom,0px))}
+h1,h2,h3{font-family:var(--display);margin:0;letter-spacing:-.01em}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+.top{display:flex;align-items:center;justify-content:space-between;padding:14px 0 10px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand svg{width:34px;height:34px;flex:none}
+.brand h1{font-size:20px;font-weight:800}
+.icon-btn{background:var(--surface);border:1px solid var(--line);border-radius:12px;width:42px;height:42px;display:grid;place-items:center}
+
+.hero{background:var(--brand);color:var(--brand-ink);border-radius:22px;padding:18px 18px 16px;margin-bottom:18px}
+.hero .date{font-family:var(--display);font-size:28px;font-weight:800;line-height:1.1}
+.hero .sub{opacity:.85;font-size:14px;margin-top:2px}
+.hero ul{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:8px}
+.hero li button{width:100%;text-align:left;display:flex;justify-content:space-between;align-items:center;background:var(--hero-sub);color:inherit;border:0;border-radius:12px;padding:10px 12px;font-weight:600}
+:root:not([data-theme="dark"]) .hero li button{color:#261F4D}
+.hero li b{font-family:var(--display);font-size:18px}
+.hero .allgood{margin-top:12px;font-weight:600}
+
+h2{font-size:18px;font-weight:700;margin:22px 0 10px}
+.sec-note{color:var(--muted);font-size:14px;margin:-6px 0 10px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px}
+.row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.card .t{font-weight:700}
+.card .s{color:var(--muted);font-size:14px}
+.card.accent-ok{border-left:6px solid var(--ok)}
+.card.accent-warn{border-left:6px solid var(--warn)}
+.card.accent-pend{border-left:6px solid var(--gold)}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);padding:10px 14px;font-weight:600;font-size:15px;text-decoration:none;min-height:44px}
+.btn.primary{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.btn.wa{background:#1FAF5A;border-color:#1FAF5A;color:#fff}
+.btn.danger{color:var(--warn);border-color:var(--warn)}
+.btn.small{padding:6px 10px;min-height:36px;font-size:14px}
+.btn[aria-disabled="true"]{opacity:.45;pointer-events:none}
+.pill{display:inline-block;border-radius:99px;padding:3px 10px;font-size:13px;font-weight:700;white-space:nowrap}
+.pill.ok{background:var(--okbg);color:var(--ok)}
+.pill.warn{background:var(--warnbg);color:var(--warn)}
+.pill.pend{background:var(--pendbg);color:var(--pend)}
+.pill.mute{background:var(--bg);color:var(--muted)}
+.empty{color:var(--muted);text-align:center;padding:22px 10px;border:1.5px dashed var(--line);border-radius:16px}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:99px;padding:7px 14px;font-weight:600;font-size:14px;min-height:38px}
+.chip.on{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.daychips .chip{padding:7px 12px}
+
+.monthnav{display:flex;align-items:center;justify-content:space-between;margin:6px 0 12px}
+.monthnav h2{margin:0}
+.summary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.summary .card{margin:0}
+.summary .n{font-family:var(--display);font-size:24px;font-weight:800}
+.summary .ok .n{color:var(--ok)} .summary .warn .n{color:var(--warn)}
+
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));z-index:5}
+nav.tabs .in{display:flex;width:100%;max-width:560px;gap:4px}
+nav.tabs button{flex:1;background:none;border:0;border-radius:14px;padding:8px 4px;display:grid;justify-items:center;gap:2px;font-size:13px;font-weight:600;color:var(--muted);min-height:54px}
+nav.tabs button svg{width:24px;height:24px}
+nav.tabs button[aria-current="page"]{color:var(--brand);background:var(--bg)}
+
+#scrim{position:fixed;inset:0;background:rgba(20,14,50,.5);display:none;z-index:10}
+#scrim.show{display:block}
+#sheet{position:fixed;left:0;right:0;bottom:0;z-index:11;display:none}
+#sheet.show{display:block}
+#sheet .panel{max-width:560px;margin:0 auto;background:var(--surface);border-radius:22px 22px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px));max-height:88vh;overflow-y:auto}
+#sheet h3{font-size:20px;margin-bottom:12px}
+label{display:block;font-weight:600;font-size:14px;margin:12px 0 5px}
+input,select,textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:11px 12px;min-height:46px}
+textarea{min-height:120px;resize:vertical}
+.hint{color:var(--muted);font-size:13px;margin-top:5px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(88px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;font-size:14px;z-index:20;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90%}
+.toast.show{opacity:1}
+.banner{background:var(--pendbg);color:var(--pend);border-radius:14px;padding:10px 12px;font-size:14px;font-weight:600;margin-bottom:14px;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.banner button{background:none;border:0;font-weight:700;text-decoration:underline;color:inherit}
+.students{margin-top:10px;border-top:1px solid var(--line)}
+.students .st{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line)}
+.students .st:last-child{border-bottom:0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#F2B33D"/><circle cx="14" cy="16" r="2.4" fill="#261F4D"/><circle cx="26" cy="16" r="2.4" fill="#261F4D"/><path d="M11 24c2 5 16 5 18 0" fill="none" stroke="#261F4D" stroke-width="2.8" stroke-linecap="round"/></svg>
+      <h1>Khushi PsyAcademy</h1>
+    </div>
+    <button class="icon-btn" data-a="settings" aria-label="Settings">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </button>
+  </header>
+  <main id="main"></main>
+</div>
+
+<nav class="tabs" aria-label="Main">
+  <div class="in" id="tabs"></div>
+</nav>
+<div id="scrim" data-a="closeSheet"></div>
+<div id="sheet" role="dialog" aria-modal="true"></div>
+<div id="toast" class="toast" role="status"></div>
+
+<script>
+/* ---------- helpers ---------- */
+const KEY = 'khushi-psyacademy-v1';
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const pad = n => String(n).padStart(2,'0');
+const ymd = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parseYmd = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y,m-1,d); };
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtTime = t => { const [h,m] = t.split(':').map(Number); return (((h+11)%12)+1)+':'+pad(m)+' '+(h<12?'AM':'PM'); };
+const money = n => '₹'+Number(n||0).toLocaleString('en-IN');
+const uid = () => Math.random().toString(36).slice(2,9);
+const midnight = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const monthKey = d => d.getFullYear()+'-'+pad(d.getMonth()+1);
+const monthLabel = mk => parseYmd(mk+'-01').toLocaleString('en-IN',{month:'long',year:'numeric'});
+const shortDate = s => parseYmd(s).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
+
+const DEFAULT_TEMPLATE = "Hello, this is a gentle reminder from Khushi PsyAcademy that {student}'s tuition fee of {amount} for {month} is pending. Kindly pay at your earliest convenience. Thank you!";
+
+/* ---------- state ---------- */
+function seed(){
+  const c = ymd(new Date(Date.now() - 4*864e5));
+  const b = (name, days, time) => ({id:uid(), name, days, time, created:c});
+  const batches = [
+    b('Class 12 · Batch A',[1,4],'18:30'),
+    b('Class 12 · Batch B',[6],'10:00'),
+    b('Class 11',[2,5],'17:00'),
+    b('Class 10',[1,3],'16:00'),
+    b('BA Psychology',[5,0],'11:00'),
+  ];
+  const mk = (n, bi, ph, fee, due) => ({id:uid(), name:n, batchId:batches[bi].id, phone:ph, fee, dueDay:due});
+  const students = [
+    mk('Aarav Sharma',0,'9876543210',1500,5), mk('Diya Patel',0,'9876501234',1500,5),
+    mk('Kabir Singh',1,'9812345678',1200,10), mk('Meera Nair',2,'9823456789',1400,1),
+    mk('Rohan Gupta',2,'9834567890',1400,7), mk('Ananya Rao',3,'9845678901',1000,3),
+    mk('Ishaan Verma',4,'9856789012',2000,15),
+  ];
+  return {sample:true, batches, students, paid:{}, log:{}, makeups:[], fired:{},
+          settings:{cc:'91', template:DEFAULT_TEMPLATE}};
+}
+let S;
+try { const r = localStorage.getItem(KEY); S = r ? JSON.parse(r) : seed(); } catch(e){ S = seed(); }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+save();
+
+let tab = 'today';
+let feeMonth = monthKey(new Date());
+let feeFilter = 'all';
+
+/* ---------- domain logic ---------- */
+const today = () => midnight(new Date());
+const batchById = id => S.batches.find(b => b.id === id);
+const studentsOf = id => S.students.filter(s => s.batchId === id);
+
+function classesOn(date){
+  const k = ymd(date);
+  return S.batches
+    .filter(b => b.days.includes(date.getDay()) && parseYmd(b.created) <= date)
+    .map(b => ({batch:b, date:k, status:S.log[b.id+'|'+k] || null}))
+    .sort((a,b) => a.batch.time.localeCompare(b.batch.time));
+}
+function unmarkedPast(){
+  const out = [];
+  for(let i=1;i<=7;i++){
+    const d = new Date(today()); d.setDate(d.getDate()-i);
+    classesOn(d).filter(c => !c.status).forEach(c => out.push(c));
+  }
+  return out;
+}
+const pendingMakeups = () => S.makeups.filter(m => !m.done);
+
+function dueDate(st, mk){
+  const [y,m] = mk.split('-').map(Number);
+  const last = new Date(y,m,0).getDate();
+  return new Date(y, m-1, Math.min(st.dueDay, last));
+}
+function feeStatus(st, mk){
+  if(S.paid[st.id+'|'+mk]) return {k:'paid', label:'Paid'};
+  const diff = Math.round((today() - dueDate(st,mk)) / 864e5);
+  if(diff > 0) return {k:'overdue', label:diff+(diff===1?' day':' days')+' overdue', diff};
+  if(diff === 0) return {k:'today', label:'Due today'};
+  return {k:'upcoming', label:'Due in '+(-diff)+(-diff===1?' day':' days')};
+}
+function feeAlerts(){
+  const mk = monthKey(new Date());
+  let overdue = 0, dueToday = 0;
+  S.students.forEach(st => { const f = feeStatus(st, mk); if(f.k==='overdue') overdue++; if(f.k==='today') dueToday++; });
+  return {overdue, dueToday};
+}
+function waLink(st, mk){
+  let num = (st.phone||'').replace(/\D/g,'');
+  if(!num) return '';
+  if(num.length === 10) num = (S.settings.cc||'91').replace(/\D/g,'') + num;
+  const msg = (S.settings.template || DEFAULT_TEMPLATE)
+    .replace(/\{student\}/g, st.name)
+    .replace(/\{amount\}/g, money(st.fee))
+    .replace(/\{month\}/g, monthLabel(mk))
+    .replace(/\{batch\}/g, (batchById(st.batchId)||{}).name || '');
+  return 'https://wa.me/'+num+'?text='+encodeURIComponent(msg);
+}
+
+/* ---------- views ---------- */
+function viewToday(){
+  const now = new Date();
+  const todays = classesOn(today());
+  const missed = unmarkedPast();
+  const mks = pendingMakeups();
+  const fa = feeAlerts();
+  const feeCount = fa.overdue + fa.dueToday;
+  const unmarkedToday = todays.filter(c => !c.status).length;
+
+  let lines = '';
+  if(unmarkedToday) lines += `<li><button data-a="scrollTo" data-v="sec-today"><span>Classes to take today</span><b>${unmarkedToday}</b></button></li>`;
+  if(missed.length) lines += `<li><button data-a="scrollTo" data-v="sec-missed"><span>Past classes not marked</span><b>${missed.length}</b></button></li>`;
+  if(mks.length) lines += `<li><button data-a="scrollTo" data-v="sec-makeup"><span>Makeup classes pending</span><b>${mks.length}</b></button></li>`;
+  if(feeCount) lines += `<li><button data-a="goFees"><span>Fees to chase</span><b>${feeCount}</b></button></li>`;
+
+  let h = '';
+  if(S.sample) h += `<div class="banner"><span>You're looking at sample data.</span><button data-a="clearSample">Start fresh</button></div>`;
+  h += `<section class="hero">
+    <div class="date">${now.toLocaleDateString('en-IN',{weekday:'long'})}</div>
+    <div class="sub">${now.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}</div>
+    ${lines ? `<ul>${lines}</ul>` : `<div class="allgood">All caught up. Nothing pending right now.</div>`}
+  </section>`;
+
+  h += `<h2 id="sec-today">Today's classes</h2>`;
+  h += todays.length ? todays.map(c => classCard(c, false)).join('') : `<div class="empty">No classes scheduled today.</div>`;
+
+  if(missed.length){
+    h += `<h2 id="sec-missed">Not marked yet</h2><div class="sec-note">Scheduled in the last 7 days. Mark each one so nothing slips.</div>`;
+    h += missed.map(c => classCard(c, true)).join('');
+  }
+
+  h += `<h2 id="sec-makeup">Makeup classes pending</h2>`;
+  if(mks.length){
+    h += mks.map(m => {
+      const b = batchById(m.batchId); if(!b) return '';
+      const isToday = m.planned === ymd(today());
+      return `<div class="card accent-pend"><div class="row"><div><div class="t">${esc(b.name)}</div>
+        <div class="s">Postponed from ${shortDate(m.from)}</div></div>
+        ${m.planned ? `<span class="pill ${isToday?'warn':'pend'}">${isToday?'Planned today':'Planned '+shortDate(m.planned)}</span>` : `<span class="pill mute">No date yet</span>`}</div>
+        <div class="actions"><button class="btn primary small" data-a="makeupDone" data-v="${m.id}">Makeup done</button>
+        <button class="btn small" data-a="planMakeup" data-v="${m.id}">${m.planned?'Change date':'Plan a date'}</button></div></div>`;
+    }).join('');
+  } else h += `<div class="empty">No pending makeup classes.</div>`;
+  return h;
+}
+function classCard(c, past){
+  const b = c.batch, n = studentsOf(b.id).length;
+  const status = c.status;
+  const pill = status === 'held' ? `<span class="pill ok">Held</span>` : status === 'postponed' ? `<span class="pill pend">Postponed</span>` : '';
+  const cls = status === 'held' ? 'accent-ok' : status === 'postponed' ? 'accent-pend' : (past ? 'accent-warn' : '');
+  return `<div class="card ${cls}"><div class="row"><div><div class="t">${esc(b.name)}</div>
+    <div class="s">${past ? shortDate(c.date)+' · ' : ''}${fmtTime(b.time)} · ${n} student${n===1?'':'s'}</div></div>${pill}</div>
+    <div class="actions">${status
+      ? `<button class="btn small" data-a="undoClass" data-b="${b.id}" data-d="${c.date}">Undo</button>`
+      : `<button class="btn primary small" data-a="markClass" data-s="held" data-b="${b.id}" data-d="${c.date}">Held</button>
+         <button class="btn small" data-a="markClass" data-s="postponed" data-b="${b.id}" data-d="${c.date}">Postponed</button>`}
+    </div></div>`;
+}
+
+function viewFees(){
+  const mk = feeMonth;
+  const rows = S.students.map(st => ({st, f:feeStatus(st, mk)}));
+  const paidAmt = rows.filter(r => r.f.k==='paid').reduce((a,r)=>a+Number(r.st.fee),0);
+  const pendAmt = rows.filter(r => r.f.k!=='paid').reduce((a,r)=>a+Number(r.st.fee),0);
+  const order = {overdue:0, today:1, upcoming:2, paid:3};
+  let list = rows.filter(r => feeFilter==='all' ? true : feeFilter==='paid' ? r.f.k==='paid' : r.f.k!=='paid');
+  list.sort((a,b) => order[a.f.k]-order[b.f.k] || (b.f.diff||0)-(a.f.diff||0) || a.st.name.localeCompare(b.st.name));
+
+  let h = `<div class="monthnav"><button class="icon-btn" data-a="monthPrev" aria-label="Previous month">‹</button>
+    <h2>${monthLabel(mk)}</h2><button class="icon-btn" data-a="monthNext" aria-label="Next month">›</button></div>
+    <div class="summary"><div class="card ok"><div class="s">Collected</div><div class="n">${money(paidAmt)}</div></div>
+    <div class="card warn"><div class="s">Pending</div><div class="n">${money(pendAmt)}</div></div></div>
+    <div class="chips" style="margin-bottom:14px">${['all','pending','paid'].map(f=>`<button class="chip ${feeFilter===f?'on':''}" data-a="feeFilter" data-v="${f}">${f[0].toUpperCase()+f.slice(1)}</button>`).join('')}</div>`;
+
+  if(!S.students.length) return h + `<div class="empty">Add students in the Batches tab to start tracking fees.</div>`;
+  if(!list.length) return h + `<div class="empty">Nothing here for this month.</div>`;
+
+  h += list.map(({st,f}) => {
+    const b = batchById(st.batchId);
+    const pill = f.k==='paid' ? 'ok' : f.k==='overdue' ? 'warn' : f.k==='today' ? 'pend' : 'mute';
+    const cls = f.k==='paid' ? 'accent-ok' : f.k==='overdue' ? 'accent-warn' : f.k==='today' ? 'accent-pend' : '';
+    const link = waLink(st, mk);
+    return `<div class="card ${cls}"><div class="row"><div><div class="t">${esc(st.name)}</div>
+      <div class="s">${esc(b?b.name:'No batch')} · due ${shortDate(ymd(dueDate(st,mk)))}</div></div>
+      <div style="text-align:right"><div class="t">${money(st.fee)}</div><span class="pill ${pill}">${f.label}</span></div></div>
+      <div class="actions">${f.k==='paid'
+        ? `<button class="btn small" data-a="unpay" data-v="${st.id}">Undo paid</button>`
+        : `<a class="btn wa small" ${link?`href="${link}" target="_blank" rel="noopener"`:'aria-disabled="true"'}>WhatsApp parent</a>
+           <button class="btn primary small" data-a="pay" data-v="${st.id}">Mark paid</button>`}
+      </div></div>`;
+  }).join('');
+  return h;
+}
+
+function viewBatches(){
+  let h = `<div class="row" style="align-items:center;margin:6px 0 12px"><h2 style="margin:0">Your batches</h2>
+    <button class="btn primary small" data-a="addBatch">Add batch</button></div>`;
+  if(!S.batches.length) return h + `<div class="empty">No batches yet. Add your first batch to get class reminders.</div>`;
+  h += S.batches.map(b => {
+    const sts = studentsOf(b.id);
+    return `<div class="card"><div class="row"><div><div class="t">${esc(b.name)}</div>
+      <div class="s">${fmtTime(b.time)}</div></div>
+      <button class="btn small" data-a="editBatch" data-v="${b.id}">Edit</button></div>
+      <div class="chips" style="margin-top:10px">${b.days.slice().sort().map(d=>`<span class="pill pend">${DAYS[d]}</span>`).join('')}</div>
+      <div class="students">${sts.map(s=>`<div class="st"><div><div class="t" style="font-size:15px">${esc(s.name)}</div>
+        <div class="s">${money(s.fee)} · due on ${s.dueDay}</div></div>
+        <button class="btn small" data-a="editStudent" data-v="${s.id}">Edit</button></div>`).join('') || `<div class="s" style="padding:10px 0">No students in this batch yet.</div>`}</div>
+      <div class="actions"><button class="btn small" data-a="addStudent" data-v="${b.id}">Add student</button></div></div>`;
+  }).join('');
+  return h;
+}
+
+/* ---------- render ---------- */
+const TABS = [
+  {id:'today', label:'Today', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>'},
+  {id:'fees', label:'Fees', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="3"/><circle cx="12" cy="12.5" r="2.5"/><path d="M6 6V4h12v2"/></svg>'},
+  {id:'batches', label:'Batches', icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17.5" cy="9" r="2.5"/><path d="M17 14c2.8 0 4.5 1.8 4.5 4.5"/></svg>'},
+];
+function render(){
+  document.getElementById('tabs').innerHTML = TABS.map(t =>
+    `<button data-a="tab" data-v="${t.id}" ${tab===t.id?'aria-current="page"':''}>${t.icon}<span>${t.label}</span></button>`).join('');
+  document.getElementById('main').innerHTML = tab==='today' ? viewToday() : tab==='fees' ? viewFees() : viewBatches();
+}
+
+/* ---------- sheets ---------- */
+function openSheet(html){
+  const sh = document.getElementById('sheet');
+  sh.innerHTML = `<div class="panel">${html}</div>`;
+  sh.classList.add('show'); document.getElementById('scrim').classList.add('show');
+}
+function closeSheet(){
+  document.getElementById('sheet').classList.remove('show'); document.getElementById('scrim').classList.remove('show');
+}
+const $ = id => document.getElementById(id);
+function toast(msg){
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast.t); toast.t = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+function batchSheet(id){
+  const b = id ? batchById(id) : {name:'', days:[], time:'17:00'};
+  openSheet(`<h3>${id?'Edit batch':'New batch'}</h3>
+    <label for="f-name">Batch name</label><input id="f-name" value="${esc(b.name)}" placeholder="e.g. Class 12 · Batch A">
+    <label>Class days</label><div class="chips daychips" id="f-days">${DAYS.map((d,i)=>`<button type="button" class="chip ${b.days.includes(i)?'on':''}" data-a="toggleDay" data-v="${i}" aria-pressed="${b.days.includes(i)}">${d}</button>`).join('')}</div>
+    <label for="f-time">Class time</label><input id="f-time" type="time" value="${b.time}">
+    <div class="actions" style="margin-top:18px"><button class="btn primary" data-a="saveBatch" data-v="${id||''}">Save batch</button>
+    <button class="btn" data-a="closeSheet">Cancel</button>
+    ${id?`<button class="btn danger" data-a="deleteBatch" data-v="${id}">Delete</button>`:''}</div>`);
+}
+function studentSheet(id, batchId){
+  const s = id ? S.students.find(x=>x.id===id) : {name:'', batchId, phone:'', fee:'', dueDay:5};
+  openSheet(`<h3>${id?'Edit student':'New student'}</h3>
+    <label for="f-name">Student name</label><input id="f-name" value="${esc(s.name)}">
+    <label for="f-batch">Batch</label><select id="f-batch">${S.batches.map(b=>`<option value="${b.id}" ${b.id===s.batchId?'selected':''}>${esc(b.name)}</option>`).join('')}</select>
+    <label for="f-phone">Parent's WhatsApp number</label><input id="f-phone" type="tel" inputmode="tel" value="${esc(s.phone)}" placeholder="10-digit number">
+    <div class="hint">Country code ${esc(S.settings.cc)} is added automatically to 10-digit numbers.</div>
+    <label for="f-fee">Monthly fee (₹)</label><input id="f-fee" type="number" inputmode="numeric" min="0" value="${esc(s.fee)}">
+    <label for="f-due">Fee due on day of month</label><input id="f-due" type="number" inputmode="numeric" min="1" max="31" value="${esc(s.dueDay)}">
+    <div class="actions" style="margin-top:18px"><button class="btn primary" data-a="saveStudent" data-v="${id||''}">Save student</button>
+    <button class="btn" data-a="closeSheet">Cancel</button>
+    ${id?`<button class="btn danger" data-a="deleteStudent" data-v="${id}">Remove</button>`:''}</div>`);
+}
+function planSheet(id){
+  const m = S.makeups.find(x=>x.id===id);
+  const def = m.planned || ymd(today());
+  openSheet(`<h3>Plan makeup class</h3><label for="f-date">Date</label><input id="f-date" type="date" value="${def}">
+    <div class="actions" style="margin-top:18px"><button class="btn primary" data-a="savePlan" data-v="${id}">Save date</button>
+    <button class="btn" data-a="closeSheet">Cancel</button></div>`);
+}
+function settingsSheet(){
+  const perm = ('Notification' in window) ? Notification.permission : 'unsupported';
+  openSheet(`<h3>Settings</h3>
+    <label for="f-template">WhatsApp fee message</label><textarea id="f-template">${esc(S.settings.template)}</textarea>
+    <div class="hint">You can use {student}, {amount}, {month} and {batch}.</div>
+    <label for="f-cc">Country code</label><input id="f-cc" inputmode="numeric" value="${esc(S.settings.cc)}">
+    <label>Reminders</label>
+    <button class="btn" data-a="enableNotif" ${perm==='granted'||perm==='unsupported'?'aria-disabled="true"':''}>${perm==='granted'?'Notifications on':perm==='unsupported'?'Not supported here':'Turn on notifications'}</button>
+    <div class="hint">In this preview, reminders only fire while the app is open. The Android app version will fire them in the background.</div>
+    <label>Your data</label>
+    <div class="actions" style="margin-top:0"><button class="btn small" data-a="backup">Copy backup</button>
+    <button class="btn small danger" data-a="resetAll">Erase all data</button></div>
+    <div class="actions" style="margin-top:18px"><button class="btn primary" data-a="saveSettings">Save settings</button><button class="btn" data-a="closeSheet">Close</button></div>`);
+}
+
+/* ---------- actions ---------- */
+function afterSampleEdit(){ if(S.sample){ /* keep banner until cleared */ } }
+const actions = {
+  tab(el){ tab = el.dataset.v; render(); window.scrollTo(0,0); },
+  goFees(){ tab = 'fees'; feeMonth = monthKey(new Date()); feeFilter = 'pending'; render(); window.scrollTo(0,0); },
+  scrollTo(el){ const t = document.getElementById(el.dataset.v); if(t) t.scrollIntoView({behavior:'smooth', block:'start'}); },
+  settings(){ settingsSheet(); },
+  closeSheet,
+  markClass(el){
+    const {b, d, s} = el.dataset;
+    S.log[b+'|'+d] = s;
+    if(s === 'postponed' && !S.makeups.some(m => m.batchId===b && m.from===d))
+      S.makeups.push({id:uid(), batchId:b, from:d, planned:null, done:false});
+    save(); render(); toast(s==='held' ? 'Marked as held' : 'Added to makeup list');
+  },
+  undoClass(el){
+    const {b, d} = el.dataset;
+    delete S.log[b+'|'+d];
+    S.makeups = S.makeups.filter(m => !(m.batchId===b && m.from===d && !m.done));
+    save(); render();
+  },
+  makeupDone(el){ const m = S.makeups.find(x=>x.id===el.dataset.v); if(m) m.done = true; save(); render(); toast('Makeup class done'); },
+  planMakeup(el){ planSheet(el.dataset.v); },
+  savePlan(el){ const m = S.makeups.find(x=>x.id===el.dataset.v); const v = $('f-date').value; if(m && v) m.planned = v; save(); closeSheet(); render(); toast('Date saved'); },
+  monthPrev(){ const d = parseYmd(feeMonth+'-01'); d.setMonth(d.getMonth()-1); feeMonth = monthKey(d); render(); },
+  monthNext(){ const d = parseYmd(feeMonth+'-01'); d.setMonth(d.getMonth()+1); feeMonth = monthKey(d); render(); },
+  feeFilter(el){ feeFilter = el.dataset.v; render(); },
+  pay(el){ S.paid[el.dataset.v+'|'+feeMonth] = ymd(new Date()); save(); render(); toast('Marked as paid'); },
+  unpay(el){ delete S.paid[el.dataset.v+'|'+feeMonth]; save(); render(); },
+  addBatch(){ batchSheet(null); },
+  editBatch(el){ batchSheet(el.dataset.v); },
+  toggleDay(el){ el.classList.toggle('on'); el.setAttribute('aria-pressed', el.classList.contains('on')); },
+  saveBatch(el){
+    const name = $('f-name').value.trim();
+    const days = [...document.querySelectorAll('#f-days .chip.on')].map(c => Number(c.dataset.v));
+    const time = $('f-time').value;
+    if(!name){ toast('Enter a batch name'); return; }
+    if(!days.length){ toast('Pick at least one class day'); return; }
+    if(!time){ toast('Pick a class time'); return; }
+    const id = el.dataset.v;
+    if(id){ Object.assign(batchById(id), {name, days, time}); }
+    else S.batches.push({id:uid(), name, days, time, created:ymd(new Date())});
+    save(); closeSheet(); render(); toast('Batch saved');
+  },
+  deleteBatch(el){
+    if(!el.dataset.armed){ el.dataset.armed = 1; el.textContent = 'Tap again to delete'; return; }
+    const id = el.dataset.v;
+    S.batches = S.batches.filter(b=>b.id!==id);
+    S.students = S.students.filter(s=>s.batchId!==id);
+    S.makeups = S.makeups.filter(m=>m.batchId!==id);
+    save(); closeSheet(); render(); toast('Batch deleted');
+  },
+  addStudent(el){ studentSheet(null, el.dataset.v); },
+  editStudent(el){ studentSheet(el.dataset.v); },
+  saveStudent(el){
+    const name = $('f-name').value.trim(), fee = Number($('f-fee').value), due = Number($('f-due').value);
+    if(!name){ toast('Enter the student name'); return; }
+    if(!(fee>=0) || $('f-fee').value===''){ toast('Enter the monthly fee'); return; }
+    if(!(due>=1 && due<=31)){ toast('Due day must be 1 to 31'); return; }
+    const data = {name, batchId:$('f-batch').value, phone:$('f-phone').value.trim(), fee, dueDay:due};
+    const id = el.dataset.v;
+    if(id) Object.assign(S.students.find(s=>s.id===id), data); else S.students.push({id:uid(), ...data});
+    save(); closeSheet(); render(); toast('Student saved');
+  },
+  deleteStudent(el){
+    if(!el.dataset.armed){ el.dataset.armed = 1; el.textContent = 'Tap again to remove'; return; }
+    S.students = S.students.filter(s=>s.id!==el.dataset.v);
+    save(); closeSheet(); render(); toast('Student removed');
+  },
+  saveSettings(){
+    S.settings.template = $('f-template').value.trim() || DEFAULT_TEMPLATE;
+    S.settings.cc = $('f-cc').value.replace(/\D/g,'') || '91';
+    save(); closeSheet(); render(); toast('Settings saved');
+  },
+  enableNotif(){
+    if(!('Notification' in window)) return;
+    Notification.requestPermission().then(p => { settingsSheet(); toast(p==='granted'?'Notifications on':'Permission not granted'); });
+  },
+  backup(){
+    const txt = JSON.stringify(S);
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(()=>toast('Backup copied'), ()=>toast('Could not copy'));
+  },
+  resetAll(el){
+    if(!el.dataset.armed){ el.dataset.armed = 1; el.textContent = 'Tap again to erase'; return; }
+    S = {sample:false, batches:[], students:[], paid:{}, log:{}, makeups:[], fired:{}, settings:S.settings};
+    save(); closeSheet(); render(); toast('All data erased');
+  },
+  clearSample(){
+    S = {sample:false, batches:[], students:[], paid:{}, log:{}, makeups:[], fired:{}, settings:S.settings};
+    save(); tab = 'batches'; render(); toast('Add your first batch');
+  },
+};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-a]');
+  if(!el) return;
+  const fn = actions[el.dataset.a];
+  if(fn) fn(el);
+});
+
+/* ---------- reminders (while the app is open) ---------- */
+function tick(){
+  if(!('Notification' in window) || Notification.permission !== 'granted') return;
+  const now = new Date(), t = ymd(now);
+  S.fired = S.fired || {};
+  Object.keys(S.fired).forEach(k => { if(!k.startsWith(t)) delete S.fired[k]; });
+  const fire = (key, title, body) => {
+    if(S.fired[key]) return; S.fired[key] = 1; save();
+    try{ new Notification(title, {body}); }catch(e){}
+  };
+  classesOn(today()).forEach(c => {
+    if(c.status) return;
+    const [h,m] = c.batch.time.split(':').map(Number);
+    const mins = h*60+m - (now.getHours()*60+now.getMinutes());
+    if(mins<=30 && mins>=0) fire(t+'|c|'+c.batch.id, c.batch.name, 'Class starts at '+fmtTime(c.batch.time));
+  });
+  const mk = pendingMakeups().length;
+  if(now.getHours()>=20 && mk) fire(t+'|mk', 'Makeup classes pending', mk+' postponed class'+(mk===1?'':'es')+' still to complete.');
+  const fa = feeAlerts();
+  if(now.getHours()>=9 && (fa.overdue+fa.dueToday)) fire(t+'|fee', 'Fees to chase', (fa.overdue+fa.dueToday)+' parent'+((fa.overdue+fa.dueToday)===1?'':'s')+' to remind on WhatsApp.');
+}
+setInterval(tick, 30000); tick();
+document.addEventListener('visibilitychange', () => { if(!document.hidden) render(); });
+
+render();
+</script>
+</body>
+</html>
