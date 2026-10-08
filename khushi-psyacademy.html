@@ -159,16 +159,15 @@ const monthLabel = mk => parseYmd(mk+'-01').toLocaleString('en-IN',{month:'long'
 const shortDate = s => parseYmd(s).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
 
 const LEGACY_DEFAULT_TEMPLATE = "Hello, this is a gentle reminder from Khushi PsyAcademy that {student}'s tuition fee of {amount} for {month} is pending. Kindly pay at your earliest convenience. Thank you!";
-const DEFAULT_TEMPLATE = `Hello {student} 👋
+const DEFAULT_TEMPLATE = `Namaste Parents
 
-This is a gentle reminder from *Khushi PsyAcademy* that the tuition fee for *{month}* is pending.
+This is a gentle reminder that the tuition fee for *{month}* is pending.
 
 💰 *Amount:* {amount}
-📚 *Batch:* {batch}
 
 Please make the payment at your convenience. If you have already paid, please disregard this message.
 
-Thank you! 💜`;
+Thank you! `;
 
 /* ---------- state ---------- */
 function seed(){
