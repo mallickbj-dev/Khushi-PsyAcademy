@@ -272,6 +272,10 @@ function feeAlerts(){
   S.students.forEach(st => { const f = feeStatus(st, mk); if(f.k==='overdue') overdue++; if(f.k==='today') dueToday++; });
   return {overdue, dueToday};
 }
+function feeCollectionReport(mk){
+  const pending = S.students.filter(st => !S.paid[st.id+'|'+mk]);
+  return {count:pending.length, amount:pending.reduce((total,st)=>total+Number(st.fee||0),0)};
+}
 function googleSheetData(){
   const students = [['Student ID','Student Name','Phone Number','Batch','Monthly Fee (INR)','Fee Due Day']];
   S.students.forEach(st => students.push([
@@ -818,10 +822,23 @@ function tick(){
     const mins = h*60+m - (now.getHours()*60+now.getMinutes());
     if(mins<=30 && mins>=0) fire(t+'|c|'+c.batch.id, c.batch.name, 'Class starts at '+fmtTime(c.batch.time));
   });
-  const mk = pendingMakeups().length;
-  if(now.getHours()>=20 && mk) fire(t+'|mk', 'Makeup classes pending', mk+' postponed class'+(mk===1?'':'es')+' still to complete.');
-  const fa = feeAlerts();
-  if(now.getHours()>=9 && (fa.overdue+fa.dueToday)) fire(t+'|fee', 'Fees to chase', (fa.overdue+fa.dueToday)+' parent'+((fa.overdue+fa.dueToday)===1?'':'s')+' to remind on WhatsApp.');
+  if(now.getHours()>=10){
+    const unmarked = unmarkedPast().length, makeups = pendingMakeups().length;
+    const behind = unmarked+makeups;
+    const body = behind
+      ? `${behind} class${behind===1?' is':'es are'} behind schedule (${unmarked} past unmarked, ${makeups} makeup pending).`
+      : 'No classes are behind schedule.';
+    fire(t+'|behind', 'Class schedule update', body);
+  }
+  if(now.getHours()>=17){
+    const report = feeCollectionReport(monthKey(now));
+    const body = !S.students.length
+      ? 'No students are set up for fee tracking.'
+      : report.count
+        ? `${report.count} unpaid student${report.count===1?'':'s'} for ${monthLabel(monthKey(now))}: ${money(report.amount)} pending.`
+        : `All tuition fees are marked paid for ${monthLabel(monthKey(now))}.`;
+    fire(t+'|fee-collection', 'Daily fee collection', body);
+  }
 }
 setInterval(tick, 30000); tick();
 document.addEventListener('visibilitychange', () => { if(!document.hidden) render(); });
