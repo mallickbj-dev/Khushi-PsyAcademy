@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 :root{
   box-sizing:border-box;
@@ -172,6 +173,16 @@ const monthLabel = mk => parseYmd(mk+'-01').toLocaleString('en-IN',{month:'long'
 const shortDate = s => parseYmd(s).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
 
 const LEGACY_DEFAULT_TEMPLATE = "Hello, this is a gentle reminder from Khushi PsyAcademy that {student}'s tuition fee of {amount} for {month} is pending. Kindly pay at your earliest convenience. Thank you!";
+const PREVIOUS_DEFAULT_TEMPLATE = `Hello {student} 👋
+
+This is a gentle reminder from *Khushi PsyAcademy* that the tuition fee for *{month}* is pending.
+
+💰 *Amount:* {amount}
+📚 *Batch:* {batch}
+
+Please make the payment at your convenience. If you have already paid, please disregard this message.
+
+Thank you! 💜`;
 const DEFAULT_TEMPLATE = `Namaste Parents
 
 This is a gentle reminder that the tuition fee for *{month}* is pending.
@@ -205,7 +216,10 @@ function seed(){
 }
 let S;
 try { const r = localStorage.getItem(KEY); S = r ? JSON.parse(r) : seed(); } catch(e){ S = seed(); }
-if(S.settings && S.settings.template === LEGACY_DEFAULT_TEMPLATE) S.settings.template = DEFAULT_TEMPLATE;
+const normalizeTemplate = template => String(template||'').replace(/\s+/g,' ').trim();
+const savedTemplate = normalizeTemplate(S.settings?.template);
+if([LEGACY_DEFAULT_TEMPLATE,PREVIOUS_DEFAULT_TEMPLATE].some(template=>normalizeTemplate(template)===savedTemplate))
+  S.settings.template = DEFAULT_TEMPLATE;
 const googleSheetSync = {accessToken:null, timer:null, syncing:false, pending:false, error:''};
 function save(syncToGoogle=true){
   try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){}
@@ -303,6 +317,9 @@ async function googleSheetsRequest(path, options={}){
   if(!response.ok){
     const error = new Error(result.error?.message || 'Google Sheets request failed.');
     error.status = response.status;
+    error.operation = path.includes('/values/')
+      ? (path.includes(':clear') ? 'clearing sheet data' : 'writing sheet data')
+      : path.includes(':batchUpdate') ? 'adding the Monthly Summary tab' : 'reading spreadsheet details';
     throw error;
   }
   return result;
@@ -317,29 +334,67 @@ async function writeGoogleSheetTab(title, rows){
   });
 }
 async function ensureGoogleSheetTab(title){
+  if(S.settings.googleSummaryTabReady) return;
   const spreadsheetId = encodeURIComponent(S.settings.googleSheetId);
-  const details = await googleSheetsRequest(`/spreadsheets/${spreadsheetId}?fields=sheets(properties(sheetId,title))`);
-  if(details.sheets?.some(sheet=>sheet.properties?.title===title)) return;
-  await googleSheetsRequest(`/spreadsheets/${spreadsheetId}:batchUpdate`, {
-    method:'POST',body:JSON.stringify({requests:[{addSheet:{properties:{title}}}]}),
+  try{
+    await googleSheetsRequest(`/spreadsheets/${spreadsheetId}:batchUpdate`, {
+      method:'POST',body:JSON.stringify({requests:[{addSheet:{properties:{title}}}]}),
+    });
+  }catch(error){
+    if(error.status!==400 || !/already exists/i.test(error.message)) throw error;
+  }
+  S.settings.googleSummaryTabReady = true;
+  save(false);
+}
+async function createGoogleSpreadsheet(){
+  const created = await googleSheetsRequest('/spreadsheets',{
+    method:'POST',
+    body:JSON.stringify({
+      properties:{title:'Khushi PsyAcademy - Students and Fees',timeZone:'Asia/Kolkata'},
+      sheets:[{properties:{title:'Students'}},{properties:{title:'Payments'}},{properties:{title:'Monthly Summary'}}],
+    }),
   });
+  S.settings.googleSheetId = created.spreadsheetId;
+  S.settings.googleSheetUrl = created.spreadsheetUrl;
+  S.settings.googleSummaryTabReady = true;
+  save(false);
 }
 async function syncGoogleSheet(closeAfterSync=false){
   if(!googleSheetSync.accessToken || !S.settings.googleSheetId) return;
   if(googleSheetSync.syncing){ googleSheetSync.pending = true; return; }
   googleSheetSync.syncing = true;
+  googleSheetSync.error = '';
+  const errorElement = $('google-sync-error');
+  if(errorElement) errorElement.textContent = '';
   try{
     const {students,payments,summary} = googleSheetData();
-    await ensureGoogleSheetTab('Monthly Summary');
-    await Promise.all([
-      writeGoogleSheetTab('Students',students),
-      writeGoogleSheetTab('Payments',payments),
-      writeGoogleSheetTab('Monthly Summary',summary),
-    ]);
-    if(closeAfterSync){ closeSheet(); render(); toast('Google Sheet connected and synced'); }
-    else toast('Google Sheet updated');
+    const writeCurrentSheet = async () => {
+      await ensureGoogleSheetTab('Monthly Summary');
+      await Promise.all([
+        writeGoogleSheetTab('Students',students),
+        writeGoogleSheetTab('Payments',payments),
+        writeGoogleSheetTab('Monthly Summary',summary),
+      ]);
+    };
+    let recreated = false;
+    try{
+      await writeCurrentSheet();
+    }catch(error){
+      if(error.status!==404) throw error;
+      await createGoogleSpreadsheet();
+      recreated = true;
+      await writeCurrentSheet();
+    }
+    if(closeAfterSync){ closeSheet(); render(); toast(recreated?'Deleted sheet recreated and synced':'Google Sheet connected and synced'); }
+    else toast(recreated?'Deleted sheet recreated and synced':'Google Sheet updated');
   }catch(error){
-    toast(error.status===401 ? 'Google access expired. Reconnect in Settings.' : 'Google Sheets sync failed. Check Settings.');
+    console.error('Google Sheets sync failed:', error);
+    const status = error.status ? `HTTP ${error.status}: ` : '';
+    const accessHint = error.status===404 ? ' Check that the saved spreadsheet still exists and is accessible to the Google account you connected.' : '';
+    googleSheetSync.error = `${status}${error.operation ? error.operation+': ' : ''}${error.message||'Network request failed.'}${accessHint}`;
+    const errorElement = $('google-sync-error');
+    if(errorElement) errorElement.textContent = googleSheetSync.error;
+    toast(error.status===401 ? 'Google access expired. Reconnect in Settings.' : 'Google Sheets sync failed. See Settings for details.');
   }finally{
     googleSheetSync.syncing = false;
     if(googleSheetSync.pending){ googleSheetSync.pending = false; scheduleGoogleSheetSync(); }
@@ -367,18 +422,7 @@ function connectGoogleSheets(){
       }
       googleSheetSync.accessToken = token.access_token;
       try{
-        if(!S.settings.googleSheetId){
-          const created = await googleSheetsRequest('/spreadsheets',{
-            method:'POST',
-            body:JSON.stringify({
-              properties:{title:'Khushi PsyAcademy - Students and Fees',timeZone:'Asia/Kolkata'},
-              sheets:[{properties:{title:'Students'}},{properties:{title:'Payments'}},{properties:{title:'Monthly Summary'}}],
-            }),
-          });
-          S.settings.googleSheetId = created.spreadsheetId;
-          S.settings.googleSheetUrl = created.spreadsheetUrl;
-          save(false);
-        }
+        if(!S.settings.googleSheetId) await createGoogleSpreadsheet();
         await syncGoogleSheet(true);
       }catch(error){
         console.error('Google Sheets setup failed:', error);
@@ -390,18 +434,65 @@ function connectGoogleSheets(){
       }
     },
   });
-  tokenClient.requestAccessToken();
+  tokenClient.requestAccessToken({prompt:'select_account'});
 }
 function waLink(st, mk){
   let num = (st.phone||'').replace(/\D/g,'');
   if(!num) return '';
   if(num.length === 10) num = (S.settings.cc||'91').replace(/\D/g,'') + num;
-  const msg = (S.settings.template || DEFAULT_TEMPLATE)
+  return 'https://wa.me/'+num+'?text='+encodeURIComponent(feeReminderText(st,mk));
+}
+function feeReminderText(st,mk,includeQrNote=false){
+  let msg = (S.settings.template || DEFAULT_TEMPLATE)
     .replace(/\{student\}/g, st.name)
     .replace(/\{amount\}/g, money(st.fee))
     .replace(/\{month\}/g, monthLabel(mk))
     .replace(/\{batch\}/g, (batchById(st.batchId)||{}).name || '');
-  return 'https://wa.me/'+num+'?text='+encodeURIComponent(msg);
+  if(S.settings.upiId){
+    msg += `\n\nUPI ID: ${S.settings.upiId}`;
+    if(includeQrNote) msg += '\nPlease scan the attached QR code to pay.';
+  }
+  return msg;
+}
+async function shareFeeReminder(el){
+  const st = S.students.find(student=>student.id===el.dataset.v);
+  const mk = el.dataset.mk;
+  if(!st) return;
+  if(!S.settings.upiId){ toast('Add your UPI ID in Settings before sharing a QR.'); return; }
+  const whatsappUrl = waLink(st,mk);
+  if(!whatsappUrl){ toast('Add a WhatsApp number for this student first.'); return; }
+  if(!window.QRCode){ toast('QR generator did not load. Check your internet connection.'); return; }
+
+  const params = new URLSearchParams({
+    pa:S.settings.upiId,
+    pn:S.settings.upiPayeeName || 'Khushi PsyAcademy',
+    am:Number(st.fee||0).toFixed(2),
+    cu:'INR',
+    tn:`Tuition fee ${monthLabel(mk)} - ${st.name}`,
+  });
+  const qrContainer = document.createElement('div');
+  new QRCode(qrContainer,{text:'upi://pay?'+params.toString(),width:320,height:320,correctLevel:QRCode.CorrectLevel.M});
+  const canvas = qrContainer.querySelector('canvas');
+  if(!canvas){ toast('Could not generate the UPI QR code.'); return; }
+  const blob = await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+  if(!blob){ toast('Could not prepare the UPI QR image.'); return; }
+
+  const file = new File([blob],`Khushi-PsyAcademy-${mk}-${st.id}.png`,{type:'image/png'});
+  if(navigator.share && navigator.canShare?.({files:[file]})){
+    try{
+      await navigator.share({title:'Tuition fee payment',text:feeReminderText(st,mk,true),files:[file]});
+    }catch(error){
+      if(error.name!=='AbortError') toast('Could not open the share sheet. Try downloading the QR from a supported phone.');
+    }
+    return;
+  }
+
+  const download = document.createElement('a');
+  download.href = canvas.toDataURL('image/png');
+  download.download = file.name;
+  download.click();
+  toast('QR downloaded. Opening WhatsApp; attach the image before sending.');
+  window.location.assign(whatsappUrl);
 }
 
 /* ---------- views ---------- */
@@ -492,7 +583,7 @@ function viewFees(){
       <div style="text-align:right"><div class="t">${money(st.fee)}</div><span class="pill ${pill}">${f.label}</span></div></div>
       <div class="actions">${f.k==='paid'
         ? `<button class="btn small" data-a="unpay" data-v="${st.id}">Undo paid</button>`
-        : `<a class="btn wa small" ${link?`href="${link}" target="_blank" rel="noopener"`:'aria-disabled="true"'}>WhatsApp parent</a>
+        : `<button class="btn wa small" data-a="shareFeeReminder" data-v="${st.id}" data-mk="${mk}" ${link?'':'aria-disabled="true"'}>Share QR + reminder</button>
            <button class="btn primary small" data-a="pay" data-v="${st.id}">Mark paid</button>`}
       </div></div>`;
   }).join('');
@@ -588,17 +679,20 @@ function settingsSheet(){
     <label for="f-template">WhatsApp fee message</label><textarea id="f-template">${esc(S.settings.template)}</textarea>
     <div class="hint">You can use {student}, {amount}, {month} and {batch}.</div>
     <label for="f-cc">Country code</label><input id="f-cc" inputmode="numeric" value="${esc(S.settings.cc)}">
+    <label for="f-upi-id">UPI ID</label><input id="f-upi-id" value="${esc(S.settings.upiId||'')}" placeholder="name@bank" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <label for="f-upi-payee">UPI payee name</label><input id="f-upi-payee" value="${esc(S.settings.upiPayeeName||'Khushi PsyAcademy')}">
+    <div class="hint">On supported phones, Share QR + reminder opens the share menu with the fee-specific QR image and message. Otherwise the QR downloads and WhatsApp opens; attach the image manually.</div>
     <label>Reminders</label>
     <button class="btn" data-a="enableNotif" ${perm==='granted'||perm==='unsupported'?'aria-disabled="true"':''}>${perm==='granted'?'Notifications on':perm==='unsupported'?'Not supported here':'Turn on notifications'}</button>
     <div class="hint">In this preview, reminders only fire while the app is open. The Android app version will fire them in the background.</div>
     <label for="f-google-client-id">Google OAuth client ID</label>
     <input id="f-google-client-id" value="${esc(S.settings.googleClientId||'')}" placeholder="...apps.googleusercontent.com" autocomplete="off" autocapitalize="off" spellcheck="false">
     <div class="hint">In the same Google Cloud project as your OAuth client, enable the Google Sheets API and use a Web application OAuth client. Add this exact origin under Authorized JavaScript origins:<br><strong>${esc(location.origin)}</strong><br>The host and port must match exactly. OAuth does not work from a file:// address.</div>
-    <div class="hint">If the consent screen is in Testing, add the Google account you sign in with under Google Auth Platform → Audience → Test users.</div>
+    <div class="hint">Choose the same Google account that owns the spreadsheet. If the consent screen is in Testing, add that account under Google Auth Platform → Audience → Test users.</div>
     <button class="btn" data-a="connectGoogleSheets">${S.settings.googleSheetId?'Connect & sync now':'Connect & create Google Sheet'}</button>
     <div class="hint" id="google-sync-error" role="alert">${esc(googleSheetSync.error)}</div>
     ${S.settings.googleSheetUrl?`<div class="hint"><a href="${esc(S.settings.googleSheetUrl)}" target="_blank" rel="noopener">Open connected spreadsheet</a></div>`:''}
-    <div class="hint">App changes sync automatically while connected. Student and monthly payment data are written to separate tabs; sheet edits are not imported.</div>
+    <div class="hint">App changes sync automatically while connected. Student and monthly payment data are written to separate tabs; sheet edits are not imported. If the spreadsheet is deleted, the next sync creates a replacement.</div>
     <label>Your data</label>
     <div class="actions" style="margin-top:0"><button class="btn small" data-a="backup">Copy backup</button>
     <button class="btn small danger" data-a="resetAll">Erase all data</button></div>
@@ -677,8 +771,11 @@ const actions = {
   saveSettings(){
     S.settings.template = $('f-template').value.trim() || DEFAULT_TEMPLATE;
     S.settings.cc = $('f-cc').value.replace(/\D/g,'') || '91';
+    S.settings.upiId = $('f-upi-id').value.trim();
+    S.settings.upiPayeeName = $('f-upi-payee').value.trim() || 'Khushi PsyAcademy';
     save(); closeSheet(); render(); toast('Settings saved');
   },
+  shareFeeReminder(el){ shareFeeReminder(el); },
   connectGoogleSheets(){ connectGoogleSheets(); },
   enableNotif(){
     if(!('Notification' in window)) return;
